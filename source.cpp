@@ -1,31 +1,24 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
+
 #define rep(i,a,n) for (int i=a;i<n;i++)
-//#define per(i,a,n) for (int i=n-1;i>=a;i--)
 #define pb push_back
-//#define mp make_pair
-//#define all(x) (x).begin(),(x).end()
-//#define fi first
-//#define se second
 typedef long long ll;
-#define SZ(x) ((ll)(x).size())
 typedef vector<ll> VI;
-typedef pair<ll, ll> PII;
 const ll m7 = 1e9 + 7, m6 = 1e9 + 6;
 
 ll mod = 0;
-ll powmod(ll a, ll b) { ll res = 1; a %= mod; assert(b >= 0); for (; b; b >>= 1) { if (b & 1)res = res * a % mod; a = a * a % mod; }return res; }
-// head
-int pow_mod(int a, int n, int m)
-{
-    if (n == 0) return 1;
-    int x = pow_mod(a, n / 2, m);
-    long long ans = (long long)x * x % m;
-    if (n % 2 == 1) ans = ans * a % m;
-    return (int)ans;
+ll powmod(ll a, ll b) { 
+    ll res = 1; 
+    a %= mod; 
+    assert(b >= 0); 
+    for (; b; b >>= 1) { 
+        if (b & 1) res = res * a % mod; 
+        a = a * a % mod; 
+    }
+    return res; 
 }
 
-ll _, n;
 namespace linear_seq {
     const ll N = 10010;
     ll res[N], base[N], _c[N], _md[N];
@@ -34,14 +27,13 @@ namespace linear_seq {
         rep(i, 0, k + k) _c[i] = 0;
         rep(i, 0, k) if (a[i]) rep(j, 0, k) _c[i + j] = (_c[i + j] + a[i] * b[j]) % mod;
         for (ll i = k + k - 1; i >= k; i--) if (_c[i])
-            rep(j, 0, SZ(Md)) _c[i - k + Md[j]] = (_c[i - k + Md[j]] - _c[i] * _md[Md[j]]) % mod;
+            rep(j, 0, Md.size()) _c[i - k + Md[j]] = (_c[i - k + Md[j]] - _c[i] * _md[Md[j]]) % mod;
         rep(i, 0, k) a[i] = _c[i];
     }
-    ll solve(ll n, VI a, VI b) { // a ç³»æ•° b åˆå€¼ b[n+1]=a[0]*b[n]+...
-//        printf("%d\n",SZ(b));
+    ll solve(ll n, VI a, VI b) {
         ll ans = 0, pnt = 0;
-        ll k = SZ(a);
-        assert(SZ(a) == SZ(b));
+        ll k = a.size();
+        assert(a.size() == b.size());
         rep(i, 0, k) _md[k - 1 - i] = -a[i]; _md[k] = 1;
         Md.clear();
         rep(i, 0, k) if (_md[i] != 0) Md.push_back(i);
@@ -52,7 +44,7 @@ namespace linear_seq {
             mul(res, res, k);
             if ((n >> p) & 1) {
                 for (ll i = k - 1; i >= 0; i--) res[i + 1] = res[i]; res[0] = 0;
-                rep(j, 0, SZ(Md)) res[Md[j]] = (res[Md[j]] - res[k] * _md[Md[j]]) % mod;
+                rep(j, 0, Md.size()) res[Md[j]] = (res[Md[j]] - res[k] * _md[Md[j]]) % mod;
             }
         }
         rep(i, 0, k) ans = (ans + res[i] * b[i]) % mod;
@@ -62,21 +54,21 @@ namespace linear_seq {
     VI BM(VI s) {
         VI C(1, 1), B(1, 1);
         ll L = 0, m = 1, b = 1;
-        rep(n, 0, SZ(s)) {
+        rep(n, 0, s.size()) {
             ll d = 0;
             rep(i, 0, L + 1) d = (d + (ll)C[i] * s[n - i]) % mod;
             if (d == 0) ++m;
             else if (2 * L <= n) {
                 VI T = C;
                 ll c = mod - d * powmod(b, mod - 2) % mod;
-                while (SZ(C) < SZ(B) + m) C.pb(0);
-                rep(i, 0, SZ(B)) C[i + m] = (C[i + m] + c * B[i]) % mod;
+                while (C.size() < B.size() + m) C.pb(0);
+                rep(i, 0, B.size()) C[i + m] = (C[i + m] + c * B[i]) % mod;
                 L = n + 1 - L; B = T; b = d; m = 1;
             }
             else {
                 ll c = mod - d * powmod(b, mod - 2) % mod;
-                while (SZ(C) < SZ(B) + m) C.pb(0);
-                rep(i, 0, SZ(B)) C[i + m] = (C[i + m] + c * B[i]) % mod;
+                while (C.size() < B.size() + m) C.pb(0);
+                rep(i, 0, B.size()) C[i + m] = (C[i + m] + c * B[i]) % mod;
                 ++m;
             }
         }
@@ -85,10 +77,11 @@ namespace linear_seq {
     ll gao(VI a, ll n) {
         VI c = BM(a);
         c.erase(c.begin());
-        rep(i, 0, SZ(c)) c[i] = (mod - c[i]) % mod;
-        return solve(n, c, VI(a.begin(), a.begin() + SZ(c)));
+        rep(i, 0, c.size()) c[i] = (mod - c[i]) % mod;
+        return solve(n, c, VI(a.begin(), a.begin() + c.size()));
     }
 };
+
 namespace CRT {
     ll mul(ll a, ll b, ll p) {
         ll ans = 0;
@@ -127,9 +120,10 @@ namespace CRT {
         return ans;
     }
 }
+
 ll fac[35], ans[35];
+
 ll BM_CRT(ll n, VI& v, ll _mod) {
-    // get n-th number of seq v under _mod
     ll p = 0, tmp = 2;
     while (tmp * tmp <= _mod) {
         if (_mod % tmp == 0) {
@@ -150,8 +144,19 @@ ll BM_CRT(ll n, VI& v, ll _mod) {
         for (auto t : v) {
             vv.pb(t % fac[i]);
         }
-        mod = fac[i];	// important !!!
+        mod = fac[i];
         ans[i] = linear_seq::gao(vv, n - 1);
     }
     return CRT::crt(p, fac, ans);
+}
+
+int main() {
+    ll n = 10;  // ¼ÆËãµÚ n Ïî
+    VI sequence = {1, 1, 2, 3, 5, 8, 13, 21};  // Ê¾ÀýÐòÁÐ£¬ÀýÈçì³²¨ÄÇÆõÊýÁÐÇ°¼¸Ïî
+    mod = m7;  // ÉèÖÃÄ£Êý
+
+    ll result = BM_CRT(n, sequence, mod);
+    cout << "µÚ " << n << " ÏîÎª: " << result << endl;
+
+    return 0;
 }
